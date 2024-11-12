@@ -1,0 +1,16 @@
+<Project>
+  <!-- See: https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build?view=vs-2019#directorybuildprops-and-directorybuildtargets -->
+
+  <PropertyGroup Condition="'$(SignAssembly)' == 'true' and '$(AssemblyOriginatorKeyFile)' == ''">
+    <AssemblyOriginatorKeyFile>$(RepoRoot)\build\crmkey\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>true</DelaySign>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+
+  <Import Project="$(RepoRoot)\build\targets\SetEnvironmentVars.targets" Condition="'$(RepoRoot)' != ''" />
+  <Import Project="$(RepoRoot)\build\targets\OvrerideVersioning.targets" Condition="'$(RepoRoot)' != ''" />
+
+</Project>

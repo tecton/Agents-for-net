@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "BotToBot",
+    "Projects": [
+      {
+        "Path": "samples\\BotToBot\\Bot1\\Bot1.csproj",
+        "Action": "Start",
+        "DebugTarget": "IIS Express"
+      },
+      {
+        "Path": "samples\\BotToBot\\Bot2\\Bot2.csproj",
+        "Action": "Start",
+        "DebugTarget": "IIS Express"
+      }
+    ]
+  }
+]

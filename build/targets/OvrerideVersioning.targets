@@ -1,0 +1,9 @@
+<Project>
+<Target Name="RestoreAssemblyVersion" AfterTargets="GetBuildVersion">
+    <!-- Used to override the assembly version to be a predictable value for .net intergration support -->
+    <PropertyGroup>
+        <AssemblyVersion Condition="'$(AssemblyVersion)' != ''">$(PreSetAssemblyVersion)</AssemblyVersion>
+        <AssemblyVersion Condition="'$(AssemblyVersion)' == ''">0.0.0.0</AssemblyVersion>
+    </PropertyGroup>
+ </Target>
+</Project>
