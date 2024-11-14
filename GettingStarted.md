@@ -29,4 +29,4 @@ This should restore and build the Framework.
 
 You can then use the Test Explore to run tests as needed.
 
-Samples are found in the [src\samples](src\samples) folder.  Please see the readme.md in each sample folder for specific instructions on running it.
+Samples are found in the [src/samples](src\samples) folder.  Please see the readme.md in each sample folder for specific instructions on running it.
