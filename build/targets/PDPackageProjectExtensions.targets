@@ -1,0 +1,84 @@
+<Project>
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+
+  <Target Name="_MetadataSolutionZipSupport_AnnotateSolutions"
+          AfterTargets="_AnnotateSolutions"
+          Returns="@(_AnnotatedSolution)">
+    <ItemGroup>
+      <!-- Apply the item metadata MetadataSolutionZipFilename:
+        Allows for the zip to be a different filename than the cap file, but doesn't require explicit full path computation like is probably done on the PdSolution item to point to the cab.
+        -->
+      <_AnnotatedSolution Condition="'%(_AnnotatedSolution.MetadataSolutionZip)' == '' and '%(_AnnotatedSolution.MetadataSolutionZipFilename)' != ''">
+        <MetadataSolutionZip>%(RelativeDir)%(_AnnotatedSolution.MetadataSolutionZipFilename)</MetadataSolutionZip>
+      </_AnnotatedSolution>
+
+      <!-- For cab files, default to the same folder and name but with extension .zip -->
+      <_AnnotatedSolution Condition="'%(_AnnotatedSolution.Extension)' == '.cab' and '%(_AnnotatedSolution.MetadataSolutionZip)' == ''">
+        <MetadataSolutionZip>%(RelativeDir)%(Filename).zip</MetadataSolutionZip>
+      </_AnnotatedSolution>
+    </ItemGroup>
+  </Target>
+
+  <!--  The next two targets run before/after the ExtractSolutionsMetadata target in order to tell it to generate manifest files using the
+    MetadataSolutionZip metadata on the items instead of the cab files.
+    TASK: Modify the ExtractSolutionsMetadata target to utilize the MetadataSolutionZip metadata directly, if specified. This will remove the need for these targets.
+    -->
+  <Target Name="_MetadataSolutionZipSupport_BeforeExtractSolutionsMetadata"
+          BeforeTargets="ExtractSolutionsMetadata"
+          Condition="@(_AnnotatedSolution->HasMetadata('MetadataSolutionZip')->Count()) != 0"
+          >
+    <Error Text="Could not find the MetadataSolutionZip file '%(_AnnotatedSolution.MetadataSolutionZip)' for the PdSolution item '%(_AnnotatedSolution.FullPath)'. You may need to set or verify the MetadataSolutionZipFilename or MetadataSolutionZip item metadata properties."
+           Condition="'%(_AnnotatedSolution.MetadataSolutionZip)' != '' and !Exists('%(_AnnotatedSolution.MetadataSolutionZip)')" />
+
+    <!-- Replace the _AnnotatedSolution items that should use an explicit MetadataSolutionZip source to generate metadata with the MetadataSolutionZip -->
+    <ItemGroup>
+      <_AnnotatedSolutionWithMetadataSolutionZip Include="@(_AnnotatedSolution->HasMetadata('MetadataSolutionZip'))" />
+      <_AnnotatedSolution Remove="@(_AnnotatedSolution->HasMetadata('MetadataSolutionZip'))" />
+      <_AnnotatedSolution Include="%(_AnnotatedSolutionWithMetadataSolutionZip.MetadataSolutionZip)">
+        <!-- Mark these items so we know which need to be swapped back -->
+        <_RemoveAfterExtractSolutionsMetadata>true</_RemoveAfterExtractSolutionsMetadata>
+        <!-- Copy over metadata that's required for target ExtractSolutionsMetadata: -->
+        <MetadataFile>%(_AnnotatedSolutionWithMetadataSolutionZip.MetadataFile)</MetadataFile>
+      </_AnnotatedSolution>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="_MetadataSolutionZipSupport_AfterExtractSolutionsMetadata"
+          AfterTargets="ExtractSolutionsMetadata"
+          Condition="@(_AnnotatedSolutionWithMetadataSolutionZip->Count()) != 0">
+    <!-- Restore the _AnnotatedSolution items that used a MetadataSolutionZip for metadata generation -->
+    <ItemGroup>
+      <_AnnotatedSolution Remove="@(_AnnotatedSolution->WithMetadataValue('_RemoveAfterExtractSolutionsMetadata', 'true'))" />
+      <_AnnotatedSolution Include="@(_AnnotatedSolutionWithMetadataSolutionZip)" />
+    </ItemGroup>
+  </Target>
+
+
+  <!--
+  Creates a TPS Package
+  Enabled when a project sets the property TPSPackageAssetsFolderName.
+  -->
+  <Target Name="CreateTPSPackage" AfterTargets="GeneratePdPackage" Condition="'$(TPSPackageAssetsFolderName)' != ''">
+    <Message Importance="high" Text="Creating TPS Package" />
+    <PropertyGroup>
+      <TPSSourceDirectory>$(MSBuildProjectDirectory)\$(TPSPackageAssetsFolderName)</TPSSourceDirectory>
+      <PackageFileOutputLocation>$(PdPackageOutputAbsolutePath)</PackageFileOutputLocation>
+      <_PackageFileNameOnly>$([System.IO.Path]::GetFileNameWithoutExtension('$(PdPackageTargetFileName)'))</_PackageFileNameOnly>
+      <TPSPackageFileOutput>$(_PackageFileNameOnly)_TPS_Package.zip</TPSPackageFileOutput>
+      <TPSTargetDropDirectory>$(RepoRootDirectory)bin\$(Configuration)\$(_PackageFileNameOnly)_TPS_Package\</TPSTargetDropDirectory>
+      <TPSTargetFilesDirectory>$(TPSTargetDropDirectory)TpsAssetsDrop</TPSTargetFilesDirectory>
+    </PropertyGroup>
+    <Error Text="Directory '$(TPSSourceDirectory)' not found." Condition="!Exists('$(TPSSourceDirectory)')" />
+    <RemoveDir Directories="$(TPSTargetDropDirectory)" />
+    
+    <ItemGroup>
+      <CopyDirectoryFiles Include="$(TPSSourceDirectory)\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(CopyDirectoryFiles)" DestinationFiles="$(TPSTargetFilesDirectory)\%(RecursiveDir)\%(Filename)%(Extension)"/>
+    <Copy SourceFiles="$(PackageFileOutputLocation)" DestinationFolder="$(TPSTargetFilesDirectory)"/>
+    <ZipDirectory SourceDirectory="$(TPSTargetFilesDirectory)" DestinationFile="$(TPSTargetDropDirectory)\$(TPSPackageFileOutput)" />
+  </Target>
+
+</Project>

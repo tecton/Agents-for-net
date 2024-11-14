@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <ComponentAreaName>CplTests.BotBuilderTesting</ComponentAreaName>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <Import Project="..\..\Build.Common.core.props" />
+
+  <PropertyGroup>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Microsoft.Agents.BotBuilder.Testing</PackageId>
+    <Description>Library for building bot tests using Microsoft Bot Framework Connector</Description>
+    <Summary>Library for building bot tests using Microsoft Bot Framework Connector</Summary>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Moq" />
+    <PackageReference Include="xunit.extensibility.core" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\libraries\BotBuilder\BotBuilder.Dialogs\Microsoft.Agents.BotBuilder.Dialogs.csproj" />
+  </ItemGroup>
+</Project>

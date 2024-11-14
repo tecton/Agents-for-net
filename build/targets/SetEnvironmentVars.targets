@@ -1,0 +1,26 @@
+<Project xmlns='http://schemas.microsoft.com/developer/msbuild/2003' ToolsVersion="15.0">
+  <Target Name="SetEnviromentVars" BeforeTargets="PreBuildEvent">
+    <Message Importance="normal" Text="Setting ReproRoot and BuildConfiguration Environment varables for use during build" />
+    <SetEnvironmentVar EnvironmentVarName="BuildConfiguration" EnvironmentVarValue="$(Configuration)" />
+    <SetEnvironmentVar EnvironmentVarName="RepoRootDirectory" EnvironmentVarValue="$(RepoRoot)" />
+  </Target>
+
+  <!-- Adds a environment variable and value to the current process execution --> 
+  <UsingTask TaskName="SetEnvironmentVar" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <EnvironmentVarName Required="true" />
+      <EnvironmentVarValue Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System"/>
+      <Using Namespace="System.IO"/>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+Log.LogMessage($"{EnvironmentVarName} = {EnvironmentVarValue}");
+Environment.SetEnvironmentVariable(EnvironmentVarName, EnvironmentVarValue, EnvironmentVariableTarget.Process);
+]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+</Project>
