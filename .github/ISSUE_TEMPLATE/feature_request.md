@@ -2,7 +2,7 @@
 name: Feature request
 about: Suggest an idea for this Agents SDK .net
 title: ''
-labels: Triage
+labels: feature-request, triage
 assignees: ''
 
 ---

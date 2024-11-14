@@ -2,7 +2,7 @@
 name: Bug report
 about: 'Create a bug report for a bug you found in the Agents SDK .NET '
 title: ''
-labels: Triage
+labels: triage
 assignees: ''
 
 ---
