@@ -351,7 +351,7 @@ namespace Microsoft.Agents.BotBuilder.Dialogs
             if (prompt != null)
             {
                 // clone the prompt the set in the options (note ActivityEx has Properties so this is the safest mechanism)
-                prompt = ProtocolJsonSerializer.Clone(prompt);
+                prompt = prompt.Clone();
 
                 prompt.Text = msg.Text;
 

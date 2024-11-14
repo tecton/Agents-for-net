@@ -169,7 +169,7 @@ namespace Microsoft.Agents.Memory.Transcript
             {
                 case ActivityTypes.MessageUpdate:
                     {
-                        var updatedActivity = ProtocolJsonSerializer.Clone(activity);
+                        var updatedActivity = activity.Clone();
                         updatedActivity.Type = ActivityTypes.Message; // fixup original type (should be Message)
 
                         var activityAndBlob = await InnerReadBlobAsync(activity).ConfigureAwait(false);

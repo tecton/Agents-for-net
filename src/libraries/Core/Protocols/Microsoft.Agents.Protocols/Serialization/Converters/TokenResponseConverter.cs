@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using Microsoft.Agents.Protocols.Primitives;
+using System.Collections;
+using System.Reflection;
 using System.Text.Json;
 
 namespace Microsoft.Agents.Protocols.Serializer
@@ -10,6 +12,11 @@ namespace Microsoft.Agents.Protocols.Serializer
     {
         protected override bool TryReadCollectionProperty(ref Utf8JsonReader reader, TokenResponse value, string propertyName, JsonSerializerOptions options)
         {
+            PropertyInfo propertyInfo = typeof(TokenResponse).GetProperty(propertyName);
+            if (propertyInfo != null && propertyInfo.PropertyType != typeof(string) && typeof(IEnumerable).IsAssignableFrom(propertyInfo.PropertyType))
+            {
+                return true;
+            }
             return false;
         }
 

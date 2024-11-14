@@ -148,7 +148,7 @@ namespace Microsoft.Agents.Samples.Bots
 
                 return returncardOptions;
             }
-            catch (Exception Exc)
+            catch (Exception)
             {
                 return null;
             }

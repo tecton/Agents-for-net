@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections;
+using System.Reflection;
 using System.Text.Json;
 using Microsoft.Agents.Protocols.Serializer;
 using Microsoft.Agents.Teams.Primitives;
@@ -11,6 +13,11 @@ namespace Microsoft.Agents.Teams.Serialization
     {
         protected override bool TryReadCollectionProperty(ref Utf8JsonReader reader, TaskModuleResponseBase value, string propertyName, JsonSerializerOptions options)
         {
+            PropertyInfo propertyInfo = typeof(TaskModuleResponseBase).GetProperty(propertyName);
+            if (propertyInfo != null && propertyInfo.PropertyType != typeof(string) && typeof(IEnumerable).IsAssignableFrom(propertyInfo.PropertyType))
+            {
+                return true;
+            }
             return false;
         }
 

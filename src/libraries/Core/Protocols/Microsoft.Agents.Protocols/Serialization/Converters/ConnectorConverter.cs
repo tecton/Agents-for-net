@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using System;
 using System.Reflection;
+using System.Collections;
 
 namespace Microsoft.Agents.Protocols.Serializer
 {
@@ -238,6 +239,18 @@ namespace Microsoft.Agents.Protocols.Serializer
 
             if (TryReadCollectionProperty(ref reader, value, property.Name, options))
             {
+                var CollectionPropertyValue = System.Text.Json.JsonSerializer.Deserialize(ref reader, property.PropertyType, options);
+                if (CollectionPropertyValue is IList prospectiveList)
+                {
+                    if (prospectiveList.Count != 0)
+                    {
+                        property.SetValue(value, CollectionPropertyValue);
+                    }
+                    else
+                    {
+                        property.SetValue(value, null);
+                    }
+                }
                 return;
             }
 

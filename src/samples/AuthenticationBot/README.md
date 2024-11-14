@@ -1,41 +1,45 @@
-﻿# Bot Authentication
+﻿# OAuth Authentication
 
-MCS SDK bot SSO authentication sample
+This Agent has been created using [Agents Framework](https://github.com/microsoft/agents-for-net), it shows how to use authentication in your Agent using OAuth.
 
-This bot has been created using [Copilot Studio SDK](https://github.com/microsoft/copilot-sdk), it shows how to use authentication in your bot using OAuth.
-
-The sample uses the bot authentication capabilities in [Azure Bot Service](https://docs.botframework.com), providing features to make it easier to develop a bot that authenticates users to various identity providers such as Azure AD (Azure Active Directory), GitHub, Uber, etc.
+- The sample uses the bot authentication capabilities in [Azure Bot Service](https://docs.botframework.com), providing features to make it easier to develop a bot that authenticates users to various identity providers such as Azure AD (Azure Active Directory), GitHub, Uber, etc.
+- The samples demonstrates performing OAuth without using the Dialogs package.
 
 ## To try this sample
 
-- Deploy your bot to Azure, see [Deploy your bot to Azure](https://aka.ms/azuredeployment)
+- Register a bot in Azure, see [Deploy your bot to Azure](https://aka.ms/azuredeployment)
 
 - [Add Authentication to your bot via Azure Bot Service](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-authentication?view=azure-bot-service-4.0&tabs=csharp)
 
+- Setup token connections in the bot appsettings
+
 - Start devtunnel
 
-- Update your Azure Bot Messaging endpoint with the tunnel Url
+- Update your Azure Bot ``Messaging endpoint`` with the tunnel Url:  `{tunnel-url}/api/messages`
 
 - Update `appsettings.json` 
-    | Property                  | Value Description     | 
-    |----------------------|-----------|
-    | ConnectionName       | Set the configured bot's OAuth connection name.      |
+
+  | Property             | Value Description     | 
+  |----------------------|-----------|
+  | ConnectionName       | Set the configured bot's OAuth connection name.      |
     
 - Run the bot from a terminal or from Visual Studio
 
 - Test via "Test in WebChat"" on your Azure Bot in the Azure Portal.
 
-## Interacting with the bot
+## Using this Agent in Teams
 
-This sample uses bot authentication capabilities in Azure Bot Service, providing features to make it easier to develop a bot that authenticates users to various identity providers such as Azure AD (Azure Active Directory), GitHub, Uber, etc. These updates also take steps towards an improved user experience by eliminating the magic code verification for some clients.
+1. The Azure Bot must have the Teams Channel added.
+1. Manually update the manifest.json
+   - Edit the `manifest.json` contained in the  `/appManifest` folder to replace with your AppId (that was created above) *everywhere* you see the place holder string `<<AAD_APP_CLIENT_ID>>`
+   - Zip up the contents of the `/appManifest` folder to create a `manifest.zip`
+1. Upload the `manifest.zip` to Teams
+   - Select **Developer Portal** in the Teams left sidebar
+   - Select **Apps** (top row)
+   - Select **Import app**, and select the manifest.zip
+1. Start the Agent, and select **Preview in Teams** in the upper right corner
 
-## Further reading
+## Interacting with the Agent
 
-- [Bot Framework Documentation](https://docs.botframework.com)
-- [Bot Basics](https://docs.microsoft.com/azure/bot-service/bot-builder-basics?view=azure-bot-service-4.0)
-- [Azure Portal](https://portal.azure.com)
-- [Add Authentication to Your Bot Via Azure Bot Service](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-authentication?view=azure-bot-service-4.0&tabs=csharp)
-- [Activity processing](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-activity-processing?view=azure-bot-service-4.0)
-- [Azure Portal](https://portal.azure.com)
-- [Azure Bot Service Introduction](https://docs.microsoft.com/azure/bot-service/bot-service-overview-introduction?view=azure-bot-service-4.0)
-- [Azure Bot Service Documentation](https://docs.microsoft.com/azure/bot-service/?view=azure-bot-service-4.0)
+Type anything to sign-in, or `logout` to sign-out.  
+

@@ -68,7 +68,8 @@ namespace Microsoft.Agents.Protocols.Serializer
             options.Converters.Add(new TaskModuleResponseConverter());
             options.Converters.Add(new TaskModuleResponseBaseConverter());
             options.Converters.Add(new MessagingExtensionAttachmentConverter());
-            
+            options.Converters.Add(new SuggestedActionsConverter());
+
             return options;
         }
 
@@ -172,11 +173,7 @@ namespace Microsoft.Agents.Protocols.Serializer
             return System.Text.Json.JsonSerializer.Deserialize<T>(serialized, SerializationOptions);
         }
 
-        public static IActivity Clone(this IActivity activity)
-        {
-            var json = System.Text.Json.JsonSerializer.Serialize(activity, ProtocolJsonSerializer.SerializationOptions);
-            return System.Text.Json.JsonSerializer.Deserialize<Activity>(json, ProtocolJsonSerializer.SerializationOptions);
-        }
+
 
         public static T CloneTo<T>(object obj)
         {
@@ -188,16 +185,6 @@ namespace Microsoft.Agents.Protocols.Serializer
             return System.Text.Json.JsonSerializer.Serialize(value, ProtocolJsonSerializer.SerializationOptions);
         }
 
-        public static string ToJson(this Activity activity)
-        {
-            return System.Text.Json.JsonSerializer.Serialize(activity, ProtocolJsonSerializer.SerializationOptions);
-        }
-
-        public static string ToJson(this IActivity activity)
-        {
-            return System.Text.Json.JsonSerializer.Serialize(activity, ProtocolJsonSerializer.SerializationOptions);
-        }
-
         public static ToT GetAs<ToT, FromT>(FromT source)
         {
             return System.Text.Json.JsonSerializer.Deserialize<ToT>(System.Text.Json.JsonSerializer.Serialize(source, ProtocolJsonSerializer.SerializationOptions), ProtocolJsonSerializer.SerializationOptions);
@@ -206,67 +193,6 @@ namespace Microsoft.Agents.Protocols.Serializer
         public static bool JsonEquals(object left, object right)
         {
             return System.Text.Json.JsonSerializer.Serialize(left).Equals(System.Text.Json.JsonSerializer.Serialize(right), StringComparison.Ordinal);
-        }
-
-        /// <summary>
-        /// Gets the channel data for this activity as a strongly-typed object.
-        /// </summary>
-        /// <typeparam name="TypeT">The type of the object to return.</typeparam>
-        /// <returns>The strongly-typed object; or the type's default value, if the ChannelData is null.</returns>
-#pragma warning disable CA1715 // Identifiers should have correct prefix (we can't change it without breaking binary compatibility)
-        public static TypeT GetChannelData<TypeT>(this IActivity activity)
-#pragma warning restore CA1715 // Identifiers should have correct prefix
-        {
-            if (activity.ChannelData == null)
-            {
-                return default;
-            }
-
-            if (activity.ChannelData.GetType() == typeof(TypeT))
-            {
-                return (TypeT)activity.ChannelData;
-            }
-
-            return ((JsonElement)activity.ChannelData).Deserialize<TypeT>(ProtocolJsonSerializer.SerializationOptions);
-
-
-        }
-
-        /// <summary>
-        /// Gets the channel data for this activity as a strongly-typed object.
-        /// A return value idicates whether the operation succeeded.
-        /// </summary>
-        /// <typeparam name="TypeT">The type of the object to return.</typeparam>
-        /// <param name="instance">When this method returns, contains the strongly-typed object if the operation succeeded,
-        /// or the type's default value if the operation failed.</param>
-        /// <param name="activity"></param>
-        /// <returns>
-        /// <c>true</c> if the operation succeeded; otherwise, <c>false</c>.
-        /// </returns>
-        /// <seealso cref="GetChannelData{TypeT}"/>
-#pragma warning disable CA1715 // Identifiers should have correct prefix (we can't change it without breaking binary compatibility)
-        public static bool TryGetChannelData<TypeT>(this IActivity activity, out TypeT instance)
-#pragma warning restore CA1715 // Identifiers should have correct prefix
-        {
-            instance = default;
-
-
-            try
-            {
-                if (activity.ChannelData == null)
-                {
-                    return false;
-                }
-
-                instance = activity.GetChannelData<TypeT>();
-                return true;
-            }
-#pragma warning disable CA1031 // Do not catch general exception types (we just return false here if the conversion fails for any reason)
-            catch
-#pragma warning restore CA1031 // Do not catch general exception types
-            {
-                return false;
-            }
         }
     }
 }

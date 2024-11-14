@@ -82,7 +82,7 @@ namespace Microsoft.Agents.Memory.Transcript
                             var originalActivity = transcript[i];
                             if (originalActivity.Id == activity.Id)
                             {
-                                var updatedActivity = ProtocolJsonSerializer.Clone(activity);
+                                var updatedActivity = activity.Clone();
                                 updatedActivity.Type = originalActivity.Type; // fixup original type (should be Message)
                                 updatedActivity.LocalTimestamp = originalActivity.LocalTimestamp;
                                 updatedActivity.Timestamp = originalActivity.Timestamp;

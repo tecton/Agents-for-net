@@ -174,7 +174,7 @@ namespace Microsoft.Agents.CopilotStudio.Client
                 {
                     string jsonRaw = line[6..];
                     _logger.LogTrace(jsonRaw);
-                    Activity activity = Microsoft.Agents.Protocols.Serializer.ProtocolJsonSerializer.ToObject<Activity>(jsonRaw);
+                    Activity activity = Protocols.Serializer.ProtocolJsonSerializer.ToObject<Activity>(jsonRaw);
                     switch (activity.Type)
                     {
                         case "message":

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Agents.Memory;
 using Microsoft.Agents.Protocols.Adapter;
 using Microsoft.Agents.Protocols.Connector;
 using Microsoft.Agents.Protocols.Primitives;
@@ -21,6 +20,7 @@ namespace Microsoft.Agents.Samples.Bots
         private readonly IConfiguration _configuration;
         private readonly OAuthFlow _flow;
         private readonly IStorage _storage;
+        private FlowState _state;
 
         public AuthBot(IConfiguration configuration, IStorage storage, ILogger<AuthBot> logger)
         {
@@ -28,6 +28,20 @@ namespace Microsoft.Agents.Samples.Bots
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _storage = storage ?? throw new ArgumentNullException(nameof(storage));
             _flow = new OAuthFlow("Sign In", "Please sign in", _configuration["ConnectionName"], 30000, null);
+        }
+
+        public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            // Read OAuthFlow state for this conversation
+            var stateKey = GetStorageKey(turnContext);
+            var items = await _storage.ReadAsync([stateKey], cancellationToken);
+            _state = items.TryGetValue(stateKey, out object value) ? (FlowState)value : new FlowState();
+
+            await base.OnTurnAsync(turnContext, cancellationToken);
+
+            // Store any changes to the OAuthFlow state after the turn is complete.
+            items[stateKey] = _state;
+            await _storage.WriteAsync(items, cancellationToken);
         }
 
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
@@ -43,23 +57,18 @@ namespace Microsoft.Agents.Samples.Bots
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Running dialog with Message Activity.");
-
             if (string.Equals("logout", turnContext.Activity.Text, StringComparison.OrdinalIgnoreCase))
             {
+                _logger.LogInformation("User signing out");
+
                 await _flow.SignOutUserAsync(turnContext, cancellationToken);
                 await turnContext.SendActivityAsync(MessageFactory.Text("You have been signed out."), cancellationToken);
             }
             else
             {
-                TokenResponse tokenResponse = null;
+                TokenResponse tokenResponse;
 
-                // Read flow state for this conversation
-                var stateKey = GetStorageKey(turnContext);
-                var items = await _storage.ReadAsync([stateKey], cancellationToken);
-                FlowState state = items.TryGetValue(stateKey, out object value) ? (FlowState)value : new FlowState();
-
-                if (!state.FlowStarted)
+                if (!_state.FlowStarted)
                 {
                     tokenResponse = await _flow.BeginFlowAsync(turnContext, null, cancellationToken);
 
@@ -68,40 +77,22 @@ namespace Microsoft.Agents.Samples.Bots
                     {
                         var expires = DateTime.UtcNow.AddMilliseconds(_flow.Timeout ?? TimeSpan.FromMinutes(15).TotalMilliseconds);
 
-                        state.FlowStarted = true;
-                        state.FlowExpires = expires;
+                        _state.FlowStarted = true;
+                        _state.FlowExpires = expires;
                     }
                     else
                     {
+                        _logger.LogInformation("User is already signed in");
                         await turnContext.SendActivityAsync(MessageFactory.Text("You are still logged in."), cancellationToken);
                     }
                 }
                 else
                 {
-                    try
-                    {
-                        tokenResponse = await _flow.ContinueFlowAsync(turnContext, state.FlowExpires, cancellationToken);
-                        if (tokenResponse != null)
-                        {
-                            await turnContext.SendActivityAsync(MessageFactory.Text("You are now logged in."), cancellationToken);
-                        }
-                        else
-                        {
-                            await turnContext.SendActivityAsync(MessageFactory.Text("Login was not successful please try again."), cancellationToken);
-                        }
-                    }
-                    catch (TimeoutException)
-                    {
-                        await turnContext.SendActivityAsync(MessageFactory.Text("You did not respond in time.  Please try again."), cancellationToken);
-                    }
+                    _logger.LogInformation("Exchange user magic code for a token");
 
-                    state.FlowStarted = false;
+                    // For non-Teams bots, the user sends the "magic code" that will be used to exchange for a token.
+                    tokenResponse = await OnContinueFlow(turnContext, cancellationToken);
                 }
-
-                // Store flow state
-                items[stateKey] = state;
-                await _storage.WriteAsync(items, cancellationToken);
-
 
                 if (tokenResponse != null)
                 {
@@ -114,6 +105,39 @@ namespace Microsoft.Agents.Samples.Bots
         {
             _logger.LogInformation("Response Event Activity (Not handled).");
             return Task.CompletedTask;
+        }
+
+        protected override async Task OnSignInInvokeAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Exchange Teams code for a token");
+
+            // Teams will send the bot an "Invoke" Activity that contains a value that will be exchanged for a token.
+            await OnContinueFlow(turnContext, cancellationToken);
+        }
+
+        private async Task<TokenResponse> OnContinueFlow(ITurnContext turnContext, CancellationToken cancellationToken)
+        {
+            TokenResponse tokenResponse = null;
+
+            try
+            {
+                tokenResponse = await _flow.ContinueFlowAsync(turnContext, _state.FlowExpires, cancellationToken);
+                if (tokenResponse != null)
+                {
+                    await turnContext.SendActivityAsync(MessageFactory.Text("You are now logged in."), cancellationToken);
+                }
+                else
+                {
+                    await turnContext.SendActivityAsync(MessageFactory.Text("Login was not successful please try again."), cancellationToken);
+                }
+            }
+            catch (TimeoutException)
+            {
+                await turnContext.SendActivityAsync(MessageFactory.Text("You did not respond in time.  Please try again."), cancellationToken);
+            }
+
+            _state.FlowStarted = false;
+            return tokenResponse;
         }
 
         private static string GetStorageKey(ITurnContext turnContext)

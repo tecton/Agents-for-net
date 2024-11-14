@@ -134,7 +134,7 @@ namespace Microsoft.Agents.Memory.Transcript
 
         private static IActivity CloneActivity(IActivity activity)
         {
-            activity = ProtocolJsonSerializer.Clone(activity);
+            activity = activity.Clone();
             var activityWithId = EnsureActivityHasId(activity);
 
             return activityWithId;

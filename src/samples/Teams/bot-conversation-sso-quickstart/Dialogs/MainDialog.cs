@@ -92,10 +92,8 @@ namespace Microsoft.Agents.Samples.Bots
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError("Error occurred while processing your request.", ex.Message);
-
+                    _logger.LogError($"Error occurred while processing your request. {ex.Message}");
                 }
-
             }
             else
             {

@@ -341,6 +341,29 @@ namespace Microsoft.Agents.Model.Tests
             AssertPropertyValues(activity2);
         }
 
+        [Theory]
+        [InlineData("cps_event")]
+        [InlineData("cps_greeting")]
+        [InlineData("cps_suggestedactions")]
+        [InlineData("cps_typing")]
+        public void ValidateActivitySerializer(string baseFileName)
+        {
+            var sourceActivity = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "Resources", $"{baseFileName}_in.json"));
+            var targetActivity = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "Resources", $"{baseFileName}_out.json"));
+            var outData = JsonSerializer.Deserialize<object>(targetActivity);
+            var resultingText = JsonSerializer.Serialize(outData);
+
+            var activity = ProtocolJsonSerializer.ToObject<Activity>(sourceActivity); // Read in the activity from the wire example.
+
+            // convert to Json for Outbound leg
+            var outboundJson = activity.ToJson();
+
+            // Compare the outbound JSON to the expected JSON
+            Assert.Equal(resultingText, outboundJson);
+        }
+
+
+
         private Activity RoundTrip(Activity outActivity)
         {
             var json = ProtocolJsonSerializer.ToJson(outActivity);

@@ -33,40 +33,7 @@ namespace Microsoft.Agents.Protocols.Serializer
             entity.Type = copy.Type;
             entity.Properties = copy.Properties;
         }
-
-        /// <summary>
-        /// Resolves the mentions from the entities of this activity.
-        /// </summary>
-        /// <returns>The array of mentions; or an empty array, if none are found.</returns>
-        /// <remarks>This method is defined on the <see cref="Activity"/> class, but is only intended
-        /// for use with a message activity, where the activity <see cref="Activity.Type"/> is set to
-        /// <see cref="ActivityTypes.Message"/>.</remarks>
-        /// <seealso cref="Mention"/>
-        public static Mention[] GetMentions(this IActivity activity)
-        {
-            var result = new List<Mention>();
-            if (activity.Entities != null)
-            {
-                foreach (var entity in activity.Entities)
-                {
-                    if (string.Compare(entity.Type, "mention", StringComparison.OrdinalIgnoreCase) == 0)
-                    {
-                        result.Add(ProtocolJsonSerializer.CloneTo<Mention>(entity));
-                    }
-                }
-            }
-            return result.ToArray();
-        }
-
-        /// <summary>
-        /// Remove recipient mention text from Text property.
-        /// Use with caution because this function is altering the text on the Activity.
-        /// </summary>
-        /// <returns>new .Text property value.</returns>
-        public static string RemoveRecipientMention<T>(this T activity) where T : IActivity
-        {
-            return activity.RemoveMentionText(activity.Recipient.Id);
-        }
+        
 
         /// <summary>
         /// Remove any mention text for given id from the Activity.Text property.  For example, given the message

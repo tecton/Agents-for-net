@@ -106,13 +106,12 @@ namespace Microsoft.Agents.Samples.Bots
                             if (dataElement.TryGetProperty("url", out JsonElement urlElement))
                             {
                                 string url = urlElement.GetString();
-                                return createAdaptiveCardInvokeResponseAsync(url);
+                                return await Task.FromResult(createAdaptiveCardInvokeResponseAsync(url));
                             }
                         }
                     }
                 }
             }
-
             return null;
         }
     }
