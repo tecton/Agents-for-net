@@ -1,6 +1,6 @@
 # BotToBot
 
-This Sample contains two bots, Bot1 and Bot2, that represent the two legs of a Bot to Bot communication sequence using Copilot SDK Skills. Each bot has its own read me to setup and configure the bot.  
+This Sample contains two bots, Bot1 and Bot2, that represent the two legs of a Bot to Bot communication sequence using Agents SDK. Each Agent has its own read me to setup and configure the Agent.  
 
 Found here:
 
@@ -29,6 +29,3 @@ The solution includes a parent bot (`Bot1`) and a bot (`Bot2`) and shows how the
 - File -> Open Bot
 - Enter a Bot URL of `http://localhost:3978/api/messages`
 
-## Deploy the bots to Azure
-
-To learn more about deploying a bot to Azure, see [Deploy your bot to Azure](https://aka.ms/azuredeployment) for a complete list of deployment instructions. 

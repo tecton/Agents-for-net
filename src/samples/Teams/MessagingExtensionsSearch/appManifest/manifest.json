@@ -1,40 +1,43 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
-  "manifestVersion": "1.16",
-  "version": "1.0",
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.14/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.14",
+  "version": "1.0.0",
   "id": "<<AAD_APP_CLIENT_ID>>",
-  "packageName": "com.microsoft.agents.teams.linkunfurling",
+  "packageName": "com.microsoft.agents.teams.messageextension",
   "developer": {
-    "name": "Link Unfurling",
+    "name": "TeamsMessagingExtensionsSearch",
     "websiteUrl": "https://www.microsoft.com",
     "privacyUrl": "https://www.teams.com/privacy",
     "termsOfUseUrl": "https://www.teams.com/termsofuser"
   },
   "icons": {
-    "color": "icon-color.png",
-    "outline": "icon-outline.png"
+    "outline": "icon-outline.png",
+    "color": "icon-color.png"
   },
   "name": {
-    "short": "Link Unfurling",
-    "full": "Link Unfurling Sample"
+    "short": "TeamsMessagingExtensionsSearch",
+    "full": "TeamsMessagingExtensionsSearch"
   },
   "description": {
-    "short": "Sample app demonstrating link unfurling in Messaging Extension.",
-    "full": "This sample app illustrates how to implement link unfurling in a Messaging Extension using the copilot SDK."
+    "short": "TeamsMessagingExtensionsSearch",
+    "full": "TeamsMessagingExtensionsSearch"
   },
   "accentColor": "#FFFFFF",
   "composeExtensions": [
     {
       "botId": "<<AAD_APP_CLIENT_ID>>",
+      "canUpdateConfiguration": true,
       "commands": [
         {
           "id": "searchQuery",
           "context": [
+            "compose",
             "commandBox"
           ],
           "description": "Test command to run query",
-          "title": "Search Command",
+          "title": "Search",
           "type": "query",
+          "initialRun": true,
           "parameters": [
             {
               "name": "searchQuery",
@@ -44,17 +47,10 @@
             }
           ]
         }
-      ],
-      "messageHandlers": [
-        {
-          "type": "link",
-          "value": {
-            "domains": [
-              "teamstestdomain.com/teams/csharp"
-            ]
-          }
-        }
       ]
     }
+  ],
+  "validDomains": [
+    "<<BOT_DOMAIN>>"
   ]
 }

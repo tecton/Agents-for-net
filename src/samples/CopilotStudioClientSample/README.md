@@ -6,12 +6,12 @@
 
 To setup for this sample, you will need the following:
 
-1. A Copilot Created in Microsoft Copilot Studio, or access to an existing Copilot.
+1. An Agent Created in Microsoft Copilot Studio, or access to an existing Agent.
 1. Ability to Create a Application Identity in Azure for a Public Client/Native App Registration Or access to an existing Public Client/Native App registration with the CopilotStudio.Copilot.Invoke API Permission assigned. 
 
-### Create a Copilot in Copilot Studio
+### Create a Agent in Copilot Studio
 
-1. Create a Copilot in [Copilot Studio](https://copilotstudio.microsoft.com)
+1. Create a Agent in [Copilot Studio](https://copilotstudio.microsoft.com)
     1. Publish your newly created Copilot
     1. Goto Settings => Advanced => Metadata and copy the following values, You will need them later:
         1. Schema name
