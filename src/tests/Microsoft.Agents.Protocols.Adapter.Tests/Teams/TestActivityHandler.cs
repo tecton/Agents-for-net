@@ -298,7 +298,7 @@ namespace Microsoft.Agents.Protocols.Adapter.Tests.Teams
         protected override Task OnTeamsMeetingEndAsync(MeetingEndEventDetails meeting, ITurnContext<IEventActivity> turnContext, CancellationToken cancellationToken)
         {
             Record.Add(MethodBase.GetCurrentMethod().Name);
-            turnContext.SendActivityAsync(meeting.EndTime.ToString());
+            turnContext.SendActivityAsync(meeting.EndTime.ToString(System.Globalization.CultureInfo.InvariantCulture));
             return Task.CompletedTask;
         }
 
