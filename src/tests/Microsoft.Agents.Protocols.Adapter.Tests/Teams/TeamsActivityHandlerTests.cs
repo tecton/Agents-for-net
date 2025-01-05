@@ -11,6 +11,7 @@ using Microsoft.Agents.Teams.Primitives;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
+using System;
 
 namespace Microsoft.Bot.Builder.Teams.Tests
 {
@@ -1122,6 +1123,8 @@ namespace Microsoft.Bot.Builder.Teams.Tests
         [Fact]
         public async Task TestMeetingStartEvent()
         {
+            var startTimeBase = new DateTime(2024, 6, 5, 0, 1, 2);
+
             // Arrange
             var activity = new Activity
             {
@@ -1130,7 +1133,7 @@ namespace Microsoft.Bot.Builder.Teams.Tests
                 Name = "application/vnd.microsoft.meetingStart",
                 Value = JsonSerializer.SerializeToElement(new
                 {
-                    StartTime = "2021-06-05T00:01:02.0Z"
+                    StartTime = startTimeBase.ToString(System.Globalization.CultureInfo.InvariantCulture) // "2025-06-05T00:01:02.0Z"
                 }),
             };
 
@@ -1146,12 +1149,15 @@ namespace Microsoft.Bot.Builder.Teams.Tests
             Assert.Equal("OnTeamsMeetingStartAsync", bot.Record[1]);
             Assert.NotNull(_activitiesToSend);
             Assert.Single(_activitiesToSend);
-            Assert.Contains("00:01:02", _activitiesToSend[0].Text); // Date format differs between OSs, so we just Assert.Contains instead of Assert.Equals
+            Assert.Contains(startTimeBase.ToString(System.Globalization.CultureInfo.InvariantCulture), _activitiesToSend[0].Text); // Date format differs between OSs, so we just Assert.Contains instead of Assert.Equals
+            
         }
 
         [Fact]
         public async Task TestMeetingEndEvent()
         {
+            var endTimeBase = new DateTime(2024, 6, 5, 0, 1, 2);
+
             // Arrange
             var activity = new Activity
             {
@@ -1160,7 +1166,7 @@ namespace Microsoft.Bot.Builder.Teams.Tests
                 Name = "application/vnd.microsoft.meetingEnd",
                 Value = JsonSerializer.SerializeToElement(new
                 {
-                    EndTime = "2021-06-05T01:02:03.0Z"
+                    EndTime = endTimeBase.ToString(System.Globalization.CultureInfo.InvariantCulture) //"2021-06-05T01:02:03.0Z"
                 }),
             };
 
@@ -1176,7 +1182,7 @@ namespace Microsoft.Bot.Builder.Teams.Tests
             Assert.Equal("OnTeamsMeetingEndAsync", bot.Record[1]);
             Assert.NotNull(_activitiesToSend);
             Assert.Single(_activitiesToSend);
-            Assert.Contains("1:02:03", _activitiesToSend[0].Text); // Date format differs between OSs, so we just Assert.Contains instead of Assert.Equals
+            Assert.Contains(endTimeBase.ToString(System.Globalization.CultureInfo.InvariantCulture), _activitiesToSend[0].Text); // Date format differs between OSs, so we just Assert.Contains instead of Assert.Equals
         }
 
         [Fact]
