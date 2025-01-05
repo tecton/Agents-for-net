@@ -12,6 +12,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Xunit;
 using System;
+using System.Globalization;
 
 namespace Microsoft.Bot.Builder.Teams.Tests
 {
@@ -1124,7 +1125,6 @@ namespace Microsoft.Bot.Builder.Teams.Tests
         public async Task TestMeetingStartEvent()
         {
             var startTimeBase = new DateTime(2024, 6, 5, 0, 1, 2);
-
             // Arrange
             var activity = new Activity
             {
@@ -1133,7 +1133,7 @@ namespace Microsoft.Bot.Builder.Teams.Tests
                 Name = "application/vnd.microsoft.meetingStart",
                 Value = JsonSerializer.SerializeToElement(new
                 {
-                    StartTime = startTimeBase.ToString(System.Globalization.CultureInfo.InvariantCulture) // "2025-06-05T00:01:02.0Z"
+                    StartTime = startTimeBase.ToString("o", CultureInfo.InvariantCulture) // "2025-06-05T00:01:02.0Z"
                 }),
             };
 
@@ -1166,7 +1166,7 @@ namespace Microsoft.Bot.Builder.Teams.Tests
                 Name = "application/vnd.microsoft.meetingEnd",
                 Value = JsonSerializer.SerializeToElement(new
                 {
-                    EndTime = endTimeBase.ToString(System.Globalization.CultureInfo.InvariantCulture) //"2021-06-05T01:02:03.0Z"
+                    EndTime = endTimeBase.ToString("o", CultureInfo.InvariantCulture) //"2021-06-05T01:02:03.0Z"
                 }),
             };
 
