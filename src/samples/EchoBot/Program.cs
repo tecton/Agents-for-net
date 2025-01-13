@@ -17,7 +17,7 @@ builder.AddBot<IBot, MyBot>();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("TestTool"))
 {
     app.MapGet("/", () => "Microsoft Copilot SDK Sample");
     app.UseDeveloperExceptionPage();
